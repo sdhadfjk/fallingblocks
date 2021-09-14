@@ -83,9 +83,6 @@ while True:
                 break
             elif event.key == pygame.K_RIGHT:
                 draw(nextPiece, 1, 0, 0)
-            elif event.key == pygame.K_LEFT:
-
-            elif event.key == pygame.K_UP:
 
 
 

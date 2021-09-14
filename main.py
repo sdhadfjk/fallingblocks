@@ -28,127 +28,51 @@ DISPLAYSURF = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 DISPLAYSURF.fill(BLACK)
 pygame.display.set_caption("Game")
 
+# CONSTANTS
+BLOCKSIZE = 20
+
 # pieces layout
-I = ["""
-0010
-0010
-0010
-0010
-""", """
-0000
-1111
-0000
-0000
-"""]
-O = ["""
-0000
-0110
-0110
-0000
-"""]
-Z = ["""
-0000
-0011
-0110
-0000
-""", """
-0001
-0011
-0010
-0000
-"""]
-S = ["""
-0000
-0110
-0011
-0000
-""", """
-0001 
-0011
-0010
-"""]
-L = ["""
-0000
-0111
-0100
-0000
-""", """
-0110
-0010
-0010
-0000
-""", """
-0001
-0111
-0000
-0000
-""", """
-0010
-0010
-0011
-0000
-"""]
-J = ["""
-0000
-0111
-0001
-0000
-""", """
-0011
-0010
-0010
-0000
-""", """
-0000
-0111
-0001
-0000
-""", """
-0010
-0010
-0110
-0000
-"""]
-T = ["""
-0000
-0111
-0010
-0000
-""", """
-0010
-0111
-0010
-0000
-""", """
-0010
-0111
-0000
-0000
-""", """
-0010
-0011
-0010
-0000
-"""]
+I = ["0010001000100010", "0000111100000000"]
+O = ["0000011001100000"]
+Z = ["0000001101100000", "0001001100100000"]
+S = ["0000011000110000", "000100110010"]
+L = ["0000011101000000", "0110001000100000", "0001011100000000", "0010001000110000"]
+J = ["0000011100010000", "0011001000100000", "0000011100010000", "0010001001100000"]
+T = ["0000011100100000", "0010011100100000", "0010011100000000", "0010001100100000"]
+types = [I,O,Z,S,L,J,T]
 
 class Piece(pygame.sprite.Sprite):
-    def __init__(self, type, position):
-        self.type = type
+    def __init__(self):
+        self.type = random.choice(types)
         self.rotation = 0
-        self.position = (5,20) # adapt for different sized boards
+        self.x = 4
+        self.y = 20 # adapt for different sized boards
 
     def rotate(self):
         rotation = (rotation+1) % len(type)
 
+# Draw piece
+def draw(x,y,piece):
+    relX = 0
+    relY = 0
+    for i in piece.type[piece.rotation]:
+        if i == "1":
+            pygame.draw.rect(DISPLAYSURF, RED, ((x+relX)*BLOCKSIZE,(y+relY)*BLOCKSIZE,BLOCKSIZE,BLOCKSIZE))
+        print(piece.type[piece.rotation])
+        relX+=1
+        if relX == 4:
+            relX = 0
+            relY+=1
+        if relY == 4:
+            break
 
-def generate():
-    types = [I,O,Z,S,L,J,T]
-    return new(Piece(random.choice(types)))
-
-
-#Game Loop
+nextPiece = Piece()
+# Game Loop
 while True:
-    nextPiece = generate()
+
+
+    draw(5,10,nextPiece)
+
 
     pygame.display.update()
     FramePerSec.tick(FPS)

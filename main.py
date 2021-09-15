@@ -67,13 +67,13 @@ class Piece(pygame.sprite.Sprite):
     def move(self, dx):
         self.deletePosition()
         self.x+=dx
-        self.deletePosition()
+        self.addPosition()
     def deletePosition(self):
         relX = 0
         relY = 0
         for i in types[self.typenum][self.rotation]:  # in type string
             if i != 0:
-                board[self.y + relY][self.x + relX] = int(i)
+                board[self.y + relY][self.x + relX] = 0
             relX += 1
             if relX == 4:
                 relY += 1

@@ -63,19 +63,38 @@ class Piece(pygame.sprite.Sprite):
         self.rotation = 0
         self.x = 3 # adapt for different sized boards
         self.y = 0
-        addPosition(self)
+        self.addPosition()
+    def move(self, dx):
+        self.deletePosition()
+        self.x+=dx
+        self.deletePosition()
+    def deletePosition(self):
+        relX = 0
+        relY = 0
+        for i in types[self.typenum][self.rotation]:  # in type string
+            if i != 0:
+                board[self.y + relY][self.x + relX] = int(i)
+            relX += 1
+            if relX == 4:
+                relY += 1
+                relX = 0
+            if relY == 4:
+                break
 
-def addPosition(piece):
-    relX = 0
-    relY = 0
-    for i in types[piece.typenum][piece.rotation]: # in type string
-        board[piece.y + relY][piece.x + relX] = int(i)
-        relX+=1
-        if relX == 4:
-            relY+=1
-            relX=0
-        if relY == 4:
-            break
+    def addPosition(self):
+        relX = 0
+        relY = 0
+        for i in types[self.typenum][self.rotation]: # in type string
+            if i !=0:
+                board[self.y + relY][self.x + relX] = int(i)
+            relX+=1
+            if relX == 4:
+                relY+=1
+                relX=0
+            if relY == 4:
+                break
+
+
 generateBoard()
 currentPiece = Piece()
 
@@ -87,14 +106,22 @@ while True:
         for j in range(BOARD_WIDTH):
             pygame.draw.rect(DISPLAYSURF, COLORS[board[i][j]], (j * BLOCKSIZE, i * BLOCKSIZE, BLOCKSIZE, BLOCKSIZE))
 
-    key = pygame.key.get_pressed()
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit();
+            sys.exit()
+            main = False
 
-    if key[pygame.K_LEFT]:
-        currentPiece.x -= 1
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_LEFT or event.key == ord('a'):
+                currentPiece.move(-1)
+            if event.key == pygame.K_RIGHT or event.key == ord('d'):
+                currentPiece.move(1)
 
-    if key[pygame.K_RIGHT]:
-        currentPiece.x += 1
+            if event.key == ord('q'):
+                pygame.quit()
+                sys.exit()
 
-    addPosition(currentPiece)
     pygame.display.update()
     FramePerSec.tick(FPS)
+    pygame.event.pump()

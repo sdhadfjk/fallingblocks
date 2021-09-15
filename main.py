@@ -2,7 +2,6 @@
 import pygame
 from pygame.locals import *
 import random
-import time
 
 # Initializing
 pygame.init()
@@ -64,9 +63,10 @@ class Piece(pygame.sprite.Sprite):
         self.x = 3 # adapt for different sized boards
         self.y = 0
         self.addPosition()
-    def move(self, dx):
+    def move(self, dx, dy):
         self.deletePosition()
         self.x+=dx
+        self.y+=dy
         self.addPosition()
     def deletePosition(self):
         relX = 0
@@ -108,19 +108,16 @@ while True:
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            pygame.quit();
-            sys.exit()
-            main = False
+            pygame.quit()
 
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_LEFT or event.key == ord('a'):
-                currentPiece.move(-1)
+                currentPiece.move(-1, 0)
             if event.key == pygame.K_RIGHT or event.key == ord('d'):
-                currentPiece.move(1)
+                currentPiece.move(1, 0)
 
             if event.key == ord('q'):
                 pygame.quit()
-                sys.exit()
 
     pygame.display.update()
     FramePerSec.tick(FPS)

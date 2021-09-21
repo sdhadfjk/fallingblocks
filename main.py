@@ -38,23 +38,26 @@ BOARD_WIDTH = 10  # Starts at 0, 9 is recommended
 BOARD_HEIGHT = 20  # Stars at 0, 19 is recommended
 
 # pieces layout
-I = ["0010001000100010", "0000111100000000"]
-O = ["0000011001100000"]
-Z = ["0000001101100000", "0001001100100000"]
-S = ["0000011000110000", "000100110010"]
-L = ["0000011101000000", "0110001000100000", "0001011100000000", "0010001000110000"]
-J = ["0000011100010000", "0011001000100000", "0000011100010000", "0010001001100000"]
-T = ["0000011100100000", "0010011100100000", "0010011100000000", "0010001100100000"]
-types = [0, I, O, Z, S, L, J, T]
+I = [[0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0], [0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0]]
+O = [[0,0,0,0,0,1,1,0,0,1,1,0,0,0,0,0]]
+Z = [[0,0,0,0,0,0,1,1,0,1,1,0,0,0,0,0], [0,0,0,1,0,0,1,1,0,0,1,0,0,0,0,0]]
+S = [[0,0,0,0,0,1,1,0,0,0,1,1,0,0,0,0], [0,0,0,1,0,0,1,1,0,0,1,0,0,0,0,0]]
+L = [[0,0,0,0,0,1,1,1,0,1,0,0,0,0,0,0], [0,1,1,0,0,0,1,0,0,0,1,0,0,0,0,0], [0,0,0,1,0,1,1,1,0,0,0,0,0,0,0,0], [0,0,1,0,0,0,1,0,0,0,1,1,0,0,0,0]]
+J = [[0,0,0,0,0,1,1,1,0,0,0,1,0,0,0,0], [0,0,1,1,0,0,1,0,0,0,1,0,0,0,0,0], [0,0,0,0,0,1,1,1,0,0,0,1,0,0,0,0], [0,0,1,0,0,0,1,0,0,1,1,0,0,0,0,0]]
+T = [[0,0,0,0,0,1,1,1,0,0,1,0,0,0,0,0], [0,0,1,0,0,1,1,1,0,0,1,0,0,0,0,0], [0,0,1,0,0,1,1,1,0,0,0,0,0,0,0,0], [0,0,1,0,0,0,1,1,0,0,1,0,0,0,0,0]]
+types = [0,I, O, Z, S, L, J, T]
 board = []
 
 
 def generateBoard():
-    for i in range(0, BOARD_HEIGHT):
+    for i in range(BOARD_HEIGHT):
         sublist = []
-        for j in range(0, BOARD_WIDTH):
+        for j in range(BOARD_WIDTH):
             sublist.append(0)
+        if i==10:
+            board.append([1,1,1,1,1,1,1,1,1,1])
         board.append(sublist)
+    print(board)
 
 
 class Piece(pygame.sprite.Sprite):
@@ -68,17 +71,19 @@ class Piece(pygame.sprite.Sprite):
         self.numrots = len(types[self.typenum])
 
     def move(self, dx, dy, rotate):
-        self.deletePosition()
-        self.x += dx
-        self.y += dy
-        self.rotation = (self.rotation + rotate) % self.numrots
-        self.addPosition()
+        if self.collision(self.x+dx, self.y+dy, (self.rotation+rotate)%self.numrots):
+            self.deletePosition()
+            self.x += dx
+            self.y += dy
+            self.rotation = (self.rotation + rotate) % self.numrots
+            self.addPosition()
         # check for collision if bad don't move
 
     def deletePosition(self):
+        """Deletes piece from board"""
         relX = 0
         relY = 0
-        for i in types[self.typenum][self.rotation]:  # in type string
+        for i in types[self.typenum][self.rotation]:  # in type list
             if i != 0:
                 board[self.y + relY][self.x + relX] = 0
             relX += 1
@@ -89,11 +94,13 @@ class Piece(pygame.sprite.Sprite):
                 break
 
     def addPosition(self):
+        """adds piece to board"""
         relX = 0
         relY = 0
+        print(self.typenum,self.rotation)
         for i in types[self.typenum][self.rotation]:  # in type string
             if i != 0:
-                board[self.y + relY][self.x + relX] = int(i)
+                board[self.y + relY][self.x + relX] = self.typenum
             relX += 1
             if relX == 4:
                 relY += 1
@@ -101,12 +108,13 @@ class Piece(pygame.sprite.Sprite):
             if relY == 4:
                 break
 
-    def collision(self):
+    def collision(self,x,y,rotate):
+        """Check for collisions"""
         relX = 0
         relY = 0
-        for i in types[self.typenum][self.rotation]:  # in type string
-            if i != 0 && board:
-                #if board full return false
+        for i in types[self.typenum][rotate]: # in type string
+            if ((i != 0) and (board[y+relY][x+relX] != 0 and board[y+relY][x+relX] != self.typenum)) or ((i != 0 and i != self.typenum) and (x+relX<0 or x+relX>BOARD_WIDTH)):
+                return False
 
             relX += 1
             if relX == 4:
@@ -114,6 +122,7 @@ class Piece(pygame.sprite.Sprite):
                 relX = 0
             if relY == 4:
                 break
+        return True
 
 generateBoard()
 currentPiece = Piece()

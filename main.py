@@ -25,7 +25,7 @@ COLORS = [BLACK, RED, YELLOW, GREEN, CYAN, BLUE, PURPLE, WHITE]
 # Other Variables for use in the program
 SCREEN_WIDTH = 500
 SCREEN_HEIGHT = 1000
-SPEED = 1000
+SPEED = 100
 
 # Create a black screen
 DISPLAYSURF = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -54,8 +54,6 @@ def generateBoard():
         sublist = []
         for j in range(BOARD_WIDTH):
             sublist.append(0)
-        if i==10:
-            board.append([1,1,1,1,1,1,1,1,1,1])
         board.append(sublist)
     print(board)
 
@@ -113,8 +111,10 @@ class Piece(pygame.sprite.Sprite):
         relX = 0
         relY = 0
         for i in types[self.typenum][rotate]: # in type string
-            if ((i != 0) and (board[y+relY][x+relX] != 0 and board[y+relY][x+relX] != self.typenum)) or ((i != 0 and i != self.typenum) and (x+relX<0 or x+relX>BOARD_WIDTH)):
+            print(y + relY, x + relX)
+            if ((i != 0) and (board[y+relY][x+relX] != 0 and board[y+relY][x+relX] != self.typenum)) or (i != 0 and (x+relX<0 or x+relX >= BOARD_WIDTH-1 or y+relY >=BOARD_HEIGHT-1)):
                 return False
+
 
             relX += 1
             if relX == 4:

@@ -13,7 +13,7 @@ FramePerSec = pygame.time.Clock()
 # Creating colors
 BLACK = (0, 0, 0)
 RED = (255, 0, 0)
-YELLOW = (255, 255, 255)
+YELLOW = (255, 255, 0)
 GREEN = (0, 255, 0)
 CYAN = (0, 255, 255)
 BLUE = (0, 0, 255)
@@ -34,8 +34,8 @@ pygame.display.set_caption("Game")
 
 # CONSTANTS
 BLOCKSIZE = 40
-BOARD_WIDTH = 10  # Starts at 0, 9 is recommended
-BOARD_HEIGHT = 20  # Stars at 0, 19 is recommended
+BOARD_WIDTH = 20  # Minimum 4, 10 is recommended
+BOARD_HEIGHT = 20  # Stars at 0, 20 is recommended
 
 # pieces layout
 I = [[0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0], [0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0]]
@@ -69,14 +69,12 @@ class Piece(pygame.sprite.Sprite):
         self.numrots = len(types[self.typenum])
 
     def move(self, dx, dy, rotate):
-        if self.collision(self.x+dx, self.y+dy, (self.rotation+rotate)%self.numrots):
+        if not(self.collision(self.x+dx, self.y+dy, (self.rotation+rotate)%self.numrots)):
             self.deletePosition()
             self.x += dx
             self.y += dy
             self.rotation = (self.rotation + rotate) % self.numrots
             self.addPosition()
-        # check for collision if bad don't move
-
     def deletePosition(self):
         """Deletes piece from board"""
         relX = 0
@@ -95,7 +93,6 @@ class Piece(pygame.sprite.Sprite):
         """adds piece to board"""
         relX = 0
         relY = 0
-        print(self.typenum,self.rotation)
         for i in types[self.typenum][self.rotation]:  # in type string
             if i != 0:
                 board[self.y + relY][self.x + relX] = self.typenum
@@ -107,13 +104,13 @@ class Piece(pygame.sprite.Sprite):
                 break
 
     def collision(self,x,y,rotate):
-        """Check for collisions"""
+        """Check for no   scollisions"""
         relX = 0
         relY = 0
         for i in types[self.typenum][rotate]: # in type string
             print(y + relY, x + relX)
-            if ((i != 0) and (board[y+relY][x+relX] != 0 and board[y+relY][x+relX] != self.typenum)) or (i != 0 and (x+relX<0 or x+relX >= BOARD_WIDTH-1 or y+relY >=BOARD_HEIGHT-1)):
-                return False
+            if (i != 0 and (board[y+relY][x+relX] != 0 and board[y+relY][x+relX] != self.typenum and types[self.typenum][self.rotation][relY*4+relX])=0 or (x+relX<0 or x+relX >= BOARD_WIDTH-1 or y+relY >=BOARD_HEIGHT-1) ) :
+                return True
 
 
             relX += 1
@@ -122,7 +119,22 @@ class Piece(pygame.sprite.Sprite):
                 relX = 0
             if relY == 4:
                 break
-        return True
+        return False
+    def bottom(self):
+        relX = 0
+        relY = 0
+        for i in types[self.typenum][self.rotation]:  # in type string
+
+            if i !=0 and ((board[self.y+relY+1][self.x+relX] != 0 and board[self.y+relY+1][self.x+relX] != self.typenum) or (self.y+relY+2>=BOARD_HEIGHT)):
+
+                return True
+            relX += 1
+            if relX == 4:
+                relY += 1
+                relX = 0
+            if relY == 4:
+                break
+        return False
 
 generateBoard()
 currentPiece = Piece()
@@ -140,6 +152,8 @@ while True:
     for event in pygame.event.get():
         if event.type == down:
             currentPiece.move(0, 1, 0)
+            if currentPiece.bottom():
+                currentPiece = Piece()
         # keyboard
         if event.type == pygame.QUIT:
             pygame.quit()

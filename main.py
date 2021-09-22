@@ -114,31 +114,21 @@ class Piece(pygame.sprite.Sprite):
             # if hit a piece
             if i != 0 and board[y+relY][x+relX] != 0:
                 try:
-                    if types[self.typenum][rotate][(relY+dy)*4+relX+dx+4] == 0:
+                    if types[self.typenum][rotate][(relY)*4+relX+dx] == 0:
+                        if types[self.typenum][rotate][(relY+dy)*4 + relX] == 0:
+                            currentPiece = Piece()
+                            return True
                         print(relY, relX)
+                        print((relY+dy)*4+relX+dx+4)
                         return True
-                except ValueError:
+                except IndexError:
                     return True
-            elif i != 0 and (x+relX<0 or x+relX >= BOARD_WIDTH-1 or y+relY >=BOARD_HEIGHT-1):
+            elif i != 0 and (x+relX<0 or x+relX >= BOARD_WIDTH-1 or y+relY >= BOARD_HEIGHT-1):
                 print(y+relY, x+relX, "sides")
+                currentPiece = Piece()
                 return True
 
 
-            relX += 1
-            if relX == 4:
-                relY += 1
-                relX = 0
-            if relY == 4:
-                break
-        return False
-    def bottom(self):
-        relX = 0
-        relY = 0
-        for i in types[self.typenum][self.rotation]:  # in type string
-
-            if i !=0 and ((board[self.y+relY+1][self.x+relX] != 0 and board[self.y+relY+1][self.x+relX] != self.typenum) or (self.y+relY+2>=BOARD_HEIGHT)):
-                print("bottom")
-                return True
             relX += 1
             if relX == 4:
                 relY += 1
@@ -163,8 +153,7 @@ while True:
     for event in pygame.event.get():
         if event.type == down:
             currentPiece.move(0, 1, 0)
-            if currentPiece.bottom():
-                currentPiece = Piece()
+
         # keyboard
         if event.type == pygame.QUIT:
             pygame.quit()

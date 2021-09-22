@@ -69,7 +69,7 @@ class Piece(pygame.sprite.Sprite):
         self.numrots = len(types[self.typenum])
 
     def move(self, dx, dy, rotate):
-        if not(self.collision(self.x+dx, self.y+dy, (self.rotation+rotate)%self.numrots)):
+        if not(self.collision(dx,dy,rotate)):
             self.deletePosition()
             self.x += dx
             self.y += dy
@@ -103,13 +103,24 @@ class Piece(pygame.sprite.Sprite):
             if relY == 4:
                 break
 
-    def collision(self,x,y,rotate):
-        """Check for no   scollisions"""
+    def collision(self,dx,dy,rot):
+        x = self.x+dx
+        y = self.y+dy
+        rotate = (self.rotation + rot) % self.numrots
+        """Check for no collisions"""
         relX = 0
         relY = 0
         for i in types[self.typenum][rotate]: # in type string
-            print(y + relY, x + relX)
-            if (i != 0 and (board[y+relY][x+relX] != 0 and board[y+relY][x+relX] != self.typenum and types[self.typenum][self.rotation][relY*4+relX])=0 or (x+relX<0 or x+relX >= BOARD_WIDTH-1 or y+relY >=BOARD_HEIGHT-1) ) :
+            # if hit a piece
+            if i != 0 and board[y+relY][x+relX] != 0:
+                try:
+                    if types[self.typenum][rotate][(relY+dy)*4+relX+dx+4] == 0:
+                        print(relY, relX)
+                        return True
+                except ValueError:
+                    return True
+            elif i != 0 and (x+relX<0 or x+relX >= BOARD_WIDTH-1 or y+relY >=BOARD_HEIGHT-1):
+                print(y+relY, x+relX, "sides")
                 return True
 
 
@@ -126,7 +137,7 @@ class Piece(pygame.sprite.Sprite):
         for i in types[self.typenum][self.rotation]:  # in type string
 
             if i !=0 and ((board[self.y+relY+1][self.x+relX] != 0 and board[self.y+relY+1][self.x+relX] != self.typenum) or (self.y+relY+2>=BOARD_HEIGHT)):
-
+                print("bottom")
                 return True
             relX += 1
             if relX == 4:

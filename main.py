@@ -25,7 +25,7 @@ COLORS = [BLACK, RED, YELLOW, GREEN, CYAN, BLUE, PURPLE, WHITE]
 # Other Variables for use in the program
 SCREEN_WIDTH = 500
 SCREEN_HEIGHT = 1000
-SPEED = 100
+SPEED = 1000
 
 # Create a black screen
 DISPLAYSURF = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -44,7 +44,7 @@ Z = [[0,0,0,0,0,0,1,1,0,1,1,0,0,0,0,0], [0,0,0,1,0,0,1,1,0,0,1,0,0,0,0,0]]
 S = [[0,0,0,0,0,1,1,0,0,0,1,1,0,0,0,0], [0,0,0,1,0,0,1,1,0,0,1,0,0,0,0,0]]
 L = [[0,0,0,0,0,1,1,1,0,1,0,0,0,0,0,0], [0,1,1,0,0,0,1,0,0,0,1,0,0,0,0,0], [0,0,0,1,0,1,1,1,0,0,0,0,0,0,0,0], [0,0,1,0,0,0,1,0,0,0,1,1,0,0,0,0]]
 J = [[0,0,0,0,0,1,1,1,0,0,0,1,0,0,0,0], [0,0,1,1,0,0,1,0,0,0,1,0,0,0,0,0], [0,0,0,0,0,1,1,1,0,0,0,1,0,0,0,0], [0,0,1,0,0,0,1,0,0,1,1,0,0,0,0,0]]
-T = [[0,0,0,0,0,1,1,1,0,0,1,0,0,0,0,0], [0,0,1,0,0,1,1,1,0,0,1,0,0,0,0,0], [0,0,1,0,0,1,1,1,0,0,0,0,0,0,0,0], [0,0,1,0,0,0,1,1,0,0,1,0,0,0,0,0]]
+T = [[0,0,0,0,0,1,1,1,0,0,1,0,0,0,0,0], [0,0,1,0,0,0,1,1,0,0,1,0,0,0,0,0], [0,0,1,0,0,1,1,1,0,0,0,0,0,0,0,0], [0,0,1,0,0,0,1,1,0,0,1,0,0,0,0,0]]
 types = [0,I, O, Z, S, L, J, T]
 board = []
 
@@ -67,7 +67,8 @@ class Piece(pygame.sprite.Sprite):
         self.y = 0
         self.addPosition()
         self.numrots = len(types[self.typenum])
-
+    def __del__(self):
+        """delete piece"""
     def move(self, dx, dy, rotate):
         if not(self.collision(dx,dy,rotate)):
             self.deletePosition()
@@ -115,17 +116,25 @@ class Piece(pygame.sprite.Sprite):
             if i != 0 and board[y+relY][x+relX] != 0:
                 try:
                     if types[self.typenum][rotate][(relY)*4+relX+dx] == 0:
-                        if types[self.typenum][rotate][(relY+dy)*4 + relX] == 0:
-                            currentPiece = Piece()
-                            return True
-                        print(relY, relX)
-                        print((relY+dy)*4+relX+dx+4)
                         return True
+                    elif types[self.typenum][rotate][(relY+dy)*4 + relX] == 0:
+                        generatePiece()
+                        return True
+                    print(types[self.typenum][rotate][(relY)*4+relX+dx])
                 except IndexError:
+                    if relY==3:
+                        generatePiece()
                     return True
-            elif i != 0 and (x+relX<0 or x+relX >= BOARD_WIDTH-1 or y+relY >= BOARD_HEIGHT-1):
-                print(y+relY, x+relX, "sides")
-                currentPiece = Piece()
+
+
+            # If sides
+            elif i != 0 and (x+relX<0 or x+relX >= BOARD_WIDTH-1):
+                print(y+relY, x+relX, self.typenum, "sides")
+                return True
+            # If hit bottom
+            elif y+relY >= BOARD_HEIGHT-1:
+
+                generatePiece()
                 return True
 
 
@@ -136,6 +145,9 @@ class Piece(pygame.sprite.Sprite):
             if relY == 4:
                 break
         return False
+def generatePiece():
+    global currentPiece
+    currentPiece = Piece()
 
 generateBoard()
 currentPiece = Piece()
@@ -165,6 +177,8 @@ while True:
                 currentPiece.move(1, 0, 0)
             if event.key == pygame.K_UP:
                 currentPiece.move(0, 0, 1)
+            if event.key == pygame.K_DOWN:
+                currentPiece.move(0,1,0)
             if event.key == ord('q'):
                 pygame.quit()
 

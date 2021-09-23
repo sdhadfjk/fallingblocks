@@ -23,7 +23,7 @@ WHITE = (255, 255, 255)
 COLORS = [BLACK, RED, YELLOW, GREEN, CYAN, BLUE, PURPLE, WHITE]
 
 # Other Variables for use in the program
-SCREEN_WIDTH = 500
+SCREEN_WIDTH = 1500
 SCREEN_HEIGHT = 1000
 SPEED = 1000
 
@@ -34,17 +34,87 @@ pygame.display.set_caption("Game")
 
 # CONSTANTS
 BLOCKSIZE = 40
-BOARD_WIDTH = 20  # Minimum 4, 10 is recommended
+BOARD_WIDTH = 40  # Minimum 4, 10 is recommended
 BOARD_HEIGHT = 20  # Stars at 0, 20 is recommended
 
 # pieces layout
-I = [[0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0], [0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0]]
-O = [[0,0,0,0,0,1,1,0,0,1,1,0,0,0,0,0]]
-Z = [[0,0,0,0,0,0,1,1,0,1,1,0,0,0,0,0], [0,0,0,1,0,0,1,1,0,0,1,0,0,0,0,0]]
-S = [[0,0,0,0,0,1,1,0,0,0,1,1,0,0,0,0], [0,0,0,1,0,0,1,1,0,0,1,0,0,0,0,0]]
-L = [[0,0,0,0,0,1,1,1,0,1,0,0,0,0,0,0], [0,1,1,0,0,0,1,0,0,0,1,0,0,0,0,0], [0,0,0,1,0,1,1,1,0,0,0,0,0,0,0,0], [0,0,1,0,0,0,1,0,0,0,1,1,0,0,0,0]]
-J = [[0,0,0,0,0,1,1,1,0,0,0,1,0,0,0,0], [0,0,1,1,0,0,1,0,0,0,1,0,0,0,0,0], [0,0,0,0,0,1,1,1,0,0,0,1,0,0,0,0], [0,0,1,0,0,0,1,0,0,1,1,0,0,0,0,0]]
-T = [[0,0,0,0,0,1,1,1,0,0,1,0,0,0,0,0], [0,0,1,0,0,0,1,1,0,0,1,0,0,0,0,0], [0,0,1,0,0,1,1,1,0,0,0,0,0,0,0,0], [0,0,1,0,0,0,1,1,0,0,1,0,0,0,0,0]]
+I = [[0,0,1,0,
+      0,0,1,0,
+      0,0,1,0,
+      0,0,1,0],
+     [0,0,0,0,
+      1,1,1,1,
+      0,0,0,0,
+      0,0,0,0]]
+O = [[0,0,0,0,
+      0,1,1,0,
+      0,1,1,0,
+      0,0,0,0]]
+Z = [[0,0,0,0,
+      0,0,1,1,
+      0,1,1,0,
+      0,0,0,0],
+     [0,0,1,0,
+      0,0,1,1,
+      0,0,0,1,
+      0,0,0,0]]
+S = [[0,0,0,0,
+      0,1,1,0,
+      0,0,1,1,
+      0,0,0,0],
+     [0,0,0,1,
+      0,0,1,1,
+      0,0,1,0,
+      0,0,0,0]]
+L = [[0,0,0,0,
+      0,1,1,1,
+      0,1,0,0,
+      0,0,0,0],
+     [0,1,1,0,
+      0,0,1,0,
+      0,0,1,0,
+      0,0,0,0],
+     [0,0,0,1,
+      0,1,1,1,
+      0,0,0,0,
+      0,0,0,0],
+     [0,0,1,0,
+      0,0,1,0,
+      0,0,1,1,
+      0,0,0,0]]
+J = [[0,0,0,0,
+      0,1,1,1,
+      0,0,0,1,
+      0,0,0,0],
+     [0,0,1,1,
+      0,0,1,0,
+      0,0,1,0,
+      0,0,0,0],
+     [0,0,0,0,
+      0,1,0,0,
+      0,1,1,1,
+      0,0,0,0],
+     [0,0,1,0,
+      0,0,1,0,
+      0,1,1,0,
+      0,0,0,0]]
+T = [[0,0,0,0,
+      0,1,1,1,
+      0,0,1,0,
+      0,0,0,0],
+     [0,0,1,0,
+      0,0,1,1,
+      0,0,1,0,
+      0,0,0,0],
+     [0,0,1,0,
+      0,1,1,1,
+      0,0,0,0,
+      0,0,0,0],
+     [0,0,1,0,
+      0,1,1,0,
+      0,0,1,0,
+      0,0,0,0]]
+
 types = [0,I, O, Z, S, L, J, T]
 board = []
 
@@ -111,13 +181,13 @@ class Piece(pygame.sprite.Sprite):
         """Check for no collisions"""
         relX = 0
         relY = 0
-        for i in types[self.typenum][rotate]: # in type string
-            # if hit a piece
-            if i != 0 and board[y+relY][x+relX] != 0:
+        for i in types[self.typenum][rotate]: # in type list
+
+            if i != 0 and board[y+relY][x+relX] != 0: # if current square on board
                 try:
-                    if types[self.typenum][rotate][(relY)*4+relX+dx] == 0:
+                    if types[self.typenum][rotate][(relY)*4+relX+dx] == 0: # if me sideways
                         return True
-                    elif types[self.typenum][rotate][(relY+dy)*4 + relX] == 0:
+                    elif types[self.typenum][rotate][(relY+dy)*4 + relX] == 0: # if me below
                         generatePiece()
                         return True
                     print(types[self.typenum][rotate][(relY)*4+relX+dx])
@@ -132,11 +202,7 @@ class Piece(pygame.sprite.Sprite):
                 print(y+relY, x+relX, self.typenum, "sides")
                 return True
             # If hit bottom
-            elif y+relY >= BOARD_HEIGHT-1:
-
-                generatePiece()
-                return True
-
+            elif i != 0 and
 
             relX += 1
             if relX == 4:

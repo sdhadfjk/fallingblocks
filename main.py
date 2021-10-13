@@ -40,10 +40,6 @@ BLOCKSIZE = 40
 BOARD_WIDTH = 10  # Minimum 4, 10 is recommended
 BOARD_HEIGHT = 20  # Stars at 0, 20 is recommended
 
-EMPTY_ROW = []
-for i in range(BOARD_WIDTH):
-    EMPTY_ROW.append(0)
-print(EMPTY_ROW)
 # pieces layout
 I = [[0,0,1,0,
       0,0,1,0,
@@ -132,6 +128,12 @@ def generateBoard():
         for j in range(BOARD_WIDTH):
             sublist.append(0)
         board.append(sublist)
+def deleteLine(line):
+    del board[line]
+    sublist = []
+    for j in range(BOARD_WIDTH):
+        sublist.append(0)
+    board.insert(0,sublist)
 
 class Piece(pygame.sprite.Sprite):
     def __init__(self):
@@ -150,6 +152,7 @@ class Piece(pygame.sprite.Sprite):
             self.draw()
 
     def addPosition(self):
+
         print("sdfsdfsdfs")
         relX = 0
         relY = 0
@@ -162,6 +165,15 @@ class Piece(pygame.sprite.Sprite):
                 relX = 0
             if relY == 4:
                 break
+        #delete line
+        for i in range(BOARD_HEIGHT):
+            full = True
+            for j in range(BOARD_WIDTH):
+                if board[i][j] == 0:
+                    full = False
+                    break
+            if full:
+                deleteLine(i)
     def collision(self,dx,dy,rot):
         x = self.x+dx
         y = self.y+dy
@@ -202,6 +214,7 @@ class Piece(pygame.sprite.Sprite):
                 break
         return False
 
+
     def draw(self):
         tempboard = copy.deepcopy(board)
 
@@ -220,23 +233,8 @@ class Piece(pygame.sprite.Sprite):
             for j in range(BOARD_WIDTH):
                 pygame.draw.rect(DISPLAYSURF, COLORS[tempboard[i][j]], (j*BLOCKSIZE, i*BLOCKSIZE, BLOCKSIZE, BLOCKSIZE))
 
-def deleteLine():
-    for i in range(BOARD_HEIGHT):
-        full = True
-        for j in range(BOARD_WIDTH):
-            if board[i][j] == 0:
-                full = False
-                break
-
-        if full:
-            del board[i]
-            pygame.time.wait(25)
-            board.insert(0,EMPTY_ROW)
-            pygame.time.wait(25)
-
 
 def generatePiece():
-    deleteLine()
     pygame.time.wait(50)
     global currentPiece
     currentPiece = Piece()
@@ -245,8 +243,10 @@ generateBoard()
 currentPiece = Piece()
 down = USEREVENT + 1
 pygame.time.set_timer(down, SPEED)
-# Game Loop
 
+
+
+# Game Loop
 while True:
 
     # Draw board
@@ -266,7 +266,7 @@ while True:
                 currentPiece.move(-1, 0, 0)
             if event.key == pygame.K_RIGHT or event.key == ord('d'):
                 currentPiece.move(1, 0, 0)
-            if event.key == pygame.K_i:
+            if event.key == pygame.K_UP:
                 currentPiece.move(0, 0, 1)
             if event.key == pygame.K_DOWN:
                 currentPiece.move(0,1,0)

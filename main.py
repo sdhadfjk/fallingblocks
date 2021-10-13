@@ -118,22 +118,26 @@ T = [[0,0,0,0,
       0,0,1,0,
       0,0,0,0]]
 
-types = [0,I, O, Z, S, L, J, T]
+#types = [0,I, O,J,L,Z,S,T]
+types = [0,I,I,I,I,I,I,I]
 board = []
 
 
-def generateBoard():
+def generate_board():
     for i in range(BOARD_HEIGHT):
         sublist = []
         for j in range(BOARD_WIDTH):
             sublist.append(0)
         board.append(sublist)
-def deleteLine(line):
+
+
+def delete_line(line):
     del board[line]
     sublist = []
     for j in range(BOARD_WIDTH):
         sublist.append(0)
     board.insert(0,sublist)
+
 
 class Piece(pygame.sprite.Sprite):
     def __init__(self):
@@ -151,9 +155,7 @@ class Piece(pygame.sprite.Sprite):
             self.rotation = (self.rotation + rotate) % self.numrots
             self.draw()
 
-    def addPosition(self):
-
-        print("sdfsdfsdfs")
+    def add_position(self):
         relX = 0
         relY = 0
         for i in types[self.typenum][self.rotation]:  # in type list
@@ -165,7 +167,7 @@ class Piece(pygame.sprite.Sprite):
                 relX = 0
             if relY == 4:
                 break
-        #delete line
+        # delete line
         for i in range(BOARD_HEIGHT):
             full = True
             for j in range(BOARD_WIDTH):
@@ -173,37 +175,41 @@ class Piece(pygame.sprite.Sprite):
                     full = False
                     break
             if full:
-                deleteLine(i)
-    def collision(self,dx,dy,rot):
+                delete_line(i)
+
+    def collision(self,dx,dy,drot):
+        """Return True if collision
+        Return false if no collision"""
         x = self.x+dx
         y = self.y+dy
-        rotate = (self.rotation + rot) % self.numrots
-        """Check for no collisions"""
+        rotate = (self.rotation + drot) % self.numrots
+        print(self.rotation,rotate)
+
         relX = 0
         relY = 0
-        for i in types[self.typenum][rotate]: # in type list
+        print(types[self.typenum][rotate])
+        for i in types[self.typenum][rotate]:  # in type list
             try:
-                if i != 0 and board[y+relY][x+relX] != 0: # if current square on board
-                    if types[self.typenum][rotate][(relY)*4+relX+dx] == 0: # if not me sideways
+                if i != 0 and board[y+relY][x+relX] != 0:  # if current square on board
+                    if dy != 0:
+                        self.add_position()
+                        generate_piece()
                         return True
-                    elif types[self.typenum][rotate][(relY+dy)*4 + relX] == 0: # if not me below
-                        self.addPosition()
-                        generatePiece()
+                    else:
                         return True
             except IndexError:
-                if relY==3:
-                    self.addPosition()
-                    generatePiece()
+                if relY == 3:
+                    self.add_position()
+                    generate_piece()
                 return True
-
 
             # If sides
-            if i != 0 and (x+relX<0 or x+relX >= BOARD_WIDTH):
+            if i != 0 and (x+relX < 0 or x+relX >= BOARD_WIDTH):
                 return True
             # If hit bottom
-            if i != 0 and y+relY>=BOARD_HEIGHT-1:
-                self.addPosition()
-                generatePiece()
+            if i != 0 and y+relY >= BOARD_HEIGHT-1:
+                self.add_position()
+                generate_piece()
                 return True
 
             relX += 1
@@ -213,7 +219,6 @@ class Piece(pygame.sprite.Sprite):
             if relY == 4:
                 break
         return False
-
 
     def draw(self):
         tempboard = copy.deepcopy(board)
@@ -234,24 +239,20 @@ class Piece(pygame.sprite.Sprite):
                 pygame.draw.rect(DISPLAYSURF, COLORS[tempboard[i][j]], (j*BLOCKSIZE, i*BLOCKSIZE, BLOCKSIZE, BLOCKSIZE))
 
 
-def generatePiece():
+def generate_piece():
     pygame.time.wait(50)
     global currentPiece
     currentPiece = Piece()
 
-generateBoard()
+
+generate_board()
 currentPiece = Piece()
 down = USEREVENT + 1
 pygame.time.set_timer(down, SPEED)
 
-
-
 # Game Loop
 while True:
-
     # Draw board
-
-
     for event in pygame.event.get():
         if event.type == down:
             currentPiece.move(0, 1, 0)

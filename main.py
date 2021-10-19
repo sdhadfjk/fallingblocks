@@ -177,26 +177,22 @@ class Piece(pygame.sprite.Sprite):
             if full:
                 delete_line(i)
 
-    def collision(self,dx,dy,drot):
+    def collision(self, dx, dy, drot):
         """Return True if collision
         Return false if no collision"""
         x = self.x+dx
         y = self.y+dy
         rotate = (self.rotation + drot) % self.numrots
-        print(self.rotation,rotate)
 
         relX = 0
         relY = 0
-        print(types[self.typenum][rotate])
         for i in types[self.typenum][rotate]:  # in type list
             try:
                 if i != 0 and board[y+relY][x+relX] != 0:  # if current square on board
-                    if dy != 0:
+                    if dy != 0:  # if move down, new piece
                         self.add_position()
                         generate_piece()
-                        return True
-                    else:
-                        return True
+                    return True
             except IndexError:
                 if relY == 3:
                     self.add_position()
@@ -256,8 +252,6 @@ while True:
     for event in pygame.event.get():
         if event.type == down:
             currentPiece.move(0, 1, 0)
-            # full line
-            print("move")
         # keyboard
         if event.type == pygame.QUIT:
             pygame.quit()
@@ -270,7 +264,7 @@ while True:
             if event.key == pygame.K_UP:
                 currentPiece.move(0, 0, 1)
             if event.key == pygame.K_DOWN:
-                currentPiece.move(0,1,0)
+                currentPiece.move(0, 1, 0)
             if event.key == ord('q'):
                 pygame.quit()
 

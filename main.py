@@ -26,9 +26,9 @@ WHITE = (255, 255, 255)
 COLORS = [BLACK, RED, YELLOW, GREEN, CYAN, BLUE, PURPLE, WHITE]
 
 # Other Variables for use in the program
-SCREEN_WIDTH = 1500
+SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 1000
-SPEED = 200
+SPEED = 100
 
 # Create a black screen
 DISPLAYSURF = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -118,8 +118,8 @@ T = [[0,0,0,0,
       0,0,1,0,
       0,0,0,0]]
 
-#types = [0,I, O,J,L,Z,S,T]
-types = [0,I,I,I,I,I,I,I]
+types = [0,I, O,J,L,Z,S,T]
+#types = [0,I,I,I,I,I,I,I]
 board = []
 
 
@@ -168,6 +168,7 @@ class Piece(pygame.sprite.Sprite):
             if relY == 4:
                 break
         # delete line
+        lines = 0
         for i in range(BOARD_HEIGHT):
             full = True
             for j in range(BOARD_WIDTH):
@@ -176,6 +177,19 @@ class Piece(pygame.sprite.Sprite):
                     break
             if full:
                 delete_line(i)
+                lines+=1
+        # Score points
+        global points
+        if lines == 1:
+            points += 1
+        elif lines == 2:
+            points += 3
+        elif lines == 3:
+            points += 6
+        elif lines == 4:
+            points += 20
+
+        print(points)
 
     def collision(self, dx, dy, drot):
         """Return True if collision
@@ -237,17 +251,36 @@ class Piece(pygame.sprite.Sprite):
 
 def generate_piece():
     pygame.time.wait(50)
-    global currentPiece
-    currentPiece = Piece()
+    global currentPiece,nextPiece
+    currentPiece = nextPiece
+    nextPiece = Piece()
+    pygame.draw.rect(DISPLAYSURF, BLACK, (BOARD_WIDTH*BLOCKSIZE+100, 100, BLOCKSIZE*4, BLOCKSIZE*4))
+
+def draw_next():
+    relX = 0
+    relY = 0
+    for i in types[nextPiece.typenum][nextPiece.rotation]:  # in type list
+        if i != 0:
+            pygame.draw.rect(DISPLAYSURF, COLORS[nextPiece.typenum], (BOARD_WIDTH*BLOCKSIZE+100 + relX * BLOCKSIZE, 100+relY * BLOCKSIZE, BLOCKSIZE, BLOCKSIZE))
+        relX += 1
+        if relX == 4:
+            relY += 1
+            relX = 0
+        if relY == 4:
+            break
 
 
 generate_board()
+nextPiece = Piece()
 currentPiece = Piece()
 down = USEREVENT + 1
 pygame.time.set_timer(down, SPEED)
 
+points = 0
+
 # Game Loop
 while True:
+    draw_next()
     # Draw board
     for event in pygame.event.get():
         if event.type == down:
@@ -257,12 +290,14 @@ while True:
             pygame.quit()
 
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_LEFT or event.key == ord('a'):
+            if event.key == pygame.K_LEFT or event.key == pygame.K_a:
                 currentPiece.move(-1, 0, 0)
-            if event.key == pygame.K_RIGHT or event.key == ord('d'):
+            if event.key == pygame.K_RIGHT or event.key == pygame.K_d:
                 currentPiece.move(1, 0, 0)
-            if event.key == pygame.K_UP:
+            if event.key == pygame.K_UP or event.key == pygame.K_n:
                 currentPiece.move(0, 0, 1)
+            if event.key == pygame.K_m:
+                currentPiece.move(0, 0, -1)
             if event.key == pygame.K_DOWN:
                 currentPiece.move(0, 1, 0)
             if event.key == ord('q'):

@@ -20,25 +20,27 @@ YELLOW = (255, 255, 0)
 GREEN = (0, 255, 0)
 CYAN = (0, 255, 255)
 BLUE = (0, 0, 255)
-PURPLE = (255, 0, 255)
+PURPLE = (180, 0, 255)
 WHITE = (255, 255, 255)
-
+GREY = (120,120,120)
 COLORS = [BLACK, RED, YELLOW, GREEN, CYAN, BLUE, PURPLE, WHITE]
-
 # Other Variables for use in the program
 SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 1000
-SPEED = 100
+SPEED = 500
 
 # Create a black screen
 DISPLAYSURF = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-
 pygame.display.set_caption("Game")
+DISPLAYSURF.fill(GREY)
 
 # CONSTANTS
 BLOCKSIZE = 40
 BOARD_WIDTH = 10  # Minimum 4, 10 is recommended
-BOARD_HEIGHT = 20  # Stars at 0, 20 is recommended
+DISPLAY_HEIGHT = 20
+
+
+BOARD_HEIGHT = DISPLAY_HEIGHT+2  # Stars at 0, 20 is recommended
 
 # pieces layout
 I = [[0,0,1,0,
@@ -167,7 +169,7 @@ class Piece(pygame.sprite.Sprite):
                 relX = 0
             if relY == 4:
                 break
-        # delete line
+        # check for full line
         lines = 0
         for i in range(BOARD_HEIGHT):
             full = True
@@ -188,8 +190,9 @@ class Piece(pygame.sprite.Sprite):
             points += 6
         elif lines == 4:
             points += 20
-
-        print(points)
+        #check if topped out
+        if self.y == 0:
+            print("topped out")
 
     def collision(self, dx, dy, drot):
         """Return True if collision
@@ -198,36 +201,34 @@ class Piece(pygame.sprite.Sprite):
         y = self.y+dy
         rotate = (self.rotation + drot) % self.numrots
 
-        relX = 0
-        relY = 0
-        for i in types[self.typenum][rotate]:  # in type list
+
+        for i in range(0,16):  # in type list
+            relX = i%4
+            relY = math.floor(i/4)
+            blockcol = types[self.typenum][rotate][i]
             try:
-                if i != 0 and board[y+relY][x+relX] != 0:  # if current square on board
+                if blockcol != 0 and board[y+relY][x+relX] != 0:  # if current square on board
                     if dy != 0:  # if move down, new piece
                         self.add_position()
                         generate_piece()
                     return True
             except IndexError:
+                print("error")
                 if relY == 3:
                     self.add_position()
                     generate_piece()
                 return True
 
             # If sides
-            if i != 0 and (x+relX < 0 or x+relX >= BOARD_WIDTH):
+            if blockcol != 0 and (x+relX < 0 or x+relX >= BOARD_WIDTH):
                 return True
             # If hit bottom
-            if i != 0 and y+relY >= BOARD_HEIGHT-1:
+            if blockcol != 0 and y+relY >= BOARD_HEIGHT-1:
+                print("bottom")
                 self.add_position()
                 generate_piece()
                 return True
 
-            relX += 1
-            if relX == 4:
-                relY += 1
-                relX = 0
-            if relY == 4:
-                break
         return False
 
     def draw(self):
@@ -244,7 +245,7 @@ class Piece(pygame.sprite.Sprite):
                 relX = 0
             if relY == 4:
                 break
-        for i in range(BOARD_HEIGHT):
+        for i in range(1,BOARD_HEIGHT-1):
             for j in range(BOARD_WIDTH):
                 pygame.draw.rect(DISPLAYSURF, COLORS[tempboard[i][j]], (j*BLOCKSIZE, i*BLOCKSIZE, BLOCKSIZE, BLOCKSIZE))
 
@@ -275,7 +276,7 @@ nextPiece = Piece()
 currentPiece = Piece()
 down = USEREVENT + 1
 pygame.time.set_timer(down, SPEED)
-
+pygame.draw.rect(DISPLAYSURF,BLACK,(BOARD_WIDTH*BLOCKSIZE+100,100,BLOCKSIZE*4,BLOCKSIZE*4))
 points = 0
 
 # Game Loop
